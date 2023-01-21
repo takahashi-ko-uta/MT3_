@@ -29,12 +29,12 @@ Vector3& Vector3::normalize()
 
 float Vector3::dot(const Vector3& v) const
 {
-	return x * v.x + y * v.y + z * v.z;
+	return (this->x * v.x) + (this->y * v.y) + (this->z * v.z);
 }
 
-float Vector3::cross(const Vector3& v) const
+Vector3 Vector3::cross(const Vector3& v) const
 {
-	return x * v.x - y * v.y - z * v.z;
+	return Vector3((this->y * v.z) - (this->z * v.y), (this->z * v.x) - (this->x * v.z), (this->x * v.y) - (this->y * v.x));
 }
 
 Vector3 Vector3::operator+() const
@@ -44,7 +44,7 @@ Vector3 Vector3::operator+() const
 
 Vector3 Vector3::operator-() const
 {
-	return Vector3(*this);
+	return Vector3(-x, -y, -z);
 }
 
 Vector3& Vector3::operator+=(const Vector3& v)
@@ -109,11 +109,10 @@ const Vector3 operator/(const Vector3& v, float s)
 	Vector3 temp(v);
 	return temp /= s;
 }
-
-//ü•ª•âŠÔ
 const Vector3 lerp(const Vector3& start, const Vector3& end, const float t)
 {
-	//float y = t;
-	//return start * (1.0f - y) + end * y;
+	//float y=t;
+	//return start*(1.0f-t)+end*y;
+
 	return start * (1.0f - t) + end * t;
 }
