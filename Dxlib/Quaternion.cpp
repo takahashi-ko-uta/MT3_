@@ -1,47 +1,47 @@
 #include "Quaternion.h"
-#include <math.h>
+#include <cmath>
 
-//Quaternion‚ÌÏ
-Quaternion Multiply(const Quaternion& lhs, const Quaternion& rhs)
+
+Quaternion Identity() { return Quaternion(1, 0, 0, 0); }
+
+Quaternion Conjugate(const Quaternion& q) { return Quaternion(q.w, -q.GetImaginary()); }
+
+float Norm(const Quaternion& q)
 {
-	Quaternion LR;
-	LR.w = lhs.w * rhs.w - lhs.x * rhs.x - lhs.y * rhs.y - lhs.z * rhs.z;
-	LR.x = lhs.y * rhs.z - lhs.z * rhs.y + lhs.w * rhs.x + lhs.x * rhs.w;
-	LR.y = lhs.z * rhs.x - lhs.x * rhs.z + lhs.w * rhs.y + lhs.y * rhs.w;
-	LR.z = lhs.x * rhs.y - lhs.y * rhs.x + lhs.w * rhs.z + lhs.z * rhs.w;
-
-	return LR;
+	Vector3 i = q.GetImaginary();
+	return sqrt(i.dot(i) + q.w * q.w);
 }
 
-//’PˆÊQuaternion‚ð•Ô‚·
-Quaternion IdentityQuaternion()
+Quaternion Normalize(const Quaternion& q)
 {
-	Quaternion pr{ 0.0f,0.0f,0.0f,1.0f };
-	
-	return pr;
+	Quaternion ans = q;
+	ans /= Norm(q);
+	return ans;
 }
 
-//‹¤–ðQuaternion‚ð•Ô‚·
-Quaternion Conjugate(const Quaternion& quaternion)
+Quaternion Inverse(const Quaternion& q)
 {
-	
+	Quaternion ans = Conjugate(q);
+	ans /= Norm(q) * Norm(q);
+	return ans;
 }
 
-//Quaternion‚Ìnorm‚ð•Ô‚·
-float Norm(const Quaternion& quaternion)
+void Quaternion::operator*=(const Quaternion& q)
 {
-	return sqrt(quaternion.w * quaternion.w + 
-				quaternion.x * quaternion.x + 
-				quaternion.y * quaternion.y +
-				quaternion.z * quaternion.z);
-}
-//³“–‰»‚µ‚½Quaternion‚ð•Ô‚·
-Quaternion Normalize(const Quaternion& quaternion)
-{
+	Vector3 iq1 = this->GetImaginary();
+	Vector3 iq2 = q.GetImaginary();
 
+	Quaternion ans =
+	{
+		this->w * q.w - iq1.dot(iq2),
+		iq1.cross(iq2) + q.w * iq1 + this->w * iq2
+	};
+	*this = ans;
 }
-//‹tQuaternion‚ð•Ô‚·
-Quaternion Inverse(const Quaternion& quaternion)
-{
 
+Quaternion operator*(const Quaternion& q1, const Quaternion& q2)
+{
+	Quaternion ans = q1;
+	ans *= q2;
+	return ans;
 }

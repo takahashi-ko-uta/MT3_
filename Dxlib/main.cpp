@@ -127,23 +127,6 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		}
 		position = splinePosition(points, startIndex, timeRate);
 
-		////—Î‚Ìü•ª
-		//Vector3 a = lerp(start, p2, timeRate);
-		//Vector3 b = lerp(p2, p3, timeRate);
-		//Vector3 c = lerp(p3, end, timeRate);
-
-		////Â‚Ìü•ª
-		//Vector3 d = lerp(a, b, timeRate);
-		//Vector3 e = lerp(b, c, timeRate);
-
-		////“®‚­‹…
-		//position = lerp(d, e, timeRate);
-
-
-		//position = easeIn(start,end,timeRate);
-		//position = easeOut(start,end,timeRate);
-		//position = easeInOut(start,end,timeRate);
-
 		// •`‰æˆ—--------------------------------------
 		// ‰æ–ÊƒNƒŠƒA
 		ClearDrawScreen();  //‰æ–Ê‚ğÁ‹
