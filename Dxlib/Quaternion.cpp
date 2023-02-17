@@ -2,10 +2,6 @@
 #include <cmath>
 
 
-Quaternion Identity() { return Quaternion(0, 0, 0, 1); }
-
-Quaternion Conjugate(const Quaternion& q) { return Quaternion(q.w, -q.GetImaginary()); }
-
 float Norm(const Quaternion& q)
 {
 	Vector3 i = q.GetImaginary();
@@ -26,6 +22,9 @@ Quaternion Inverse(const Quaternion& q)
 	return ans;
 }
 
+
+
+
 void Quaternion::operator*=(const Quaternion& q)
 {
 	Vector3 iq1 = this->GetImaginary();
@@ -39,6 +38,16 @@ void Quaternion::operator*=(const Quaternion& q)
 	*this = ans;
 }
 
+Quaternion operator+(const Quaternion& q1, const Quaternion& q2)
+{
+	return Quaternion(q1.w + q2.w, q1.GetImaginary() + q2.GetImaginary());
+}
+
+Quaternion operator-(const Quaternion& q1, const Quaternion& q2)
+{
+	return Quaternion(q1.w - q2.w, q1.GetImaginary() - q2.GetImaginary());
+}
+
 Quaternion operator*(const Quaternion& q1, const Quaternion& q2)
 {
 	Quaternion ans = q1;
@@ -46,61 +55,79 @@ Quaternion operator*(const Quaternion& q1, const Quaternion& q2)
 	return ans;
 }
 
-Quaternion MakeAxisAngle(const Vector3& axis, float angle)
+Quaternion operator/(const Quaternion& q, float norm)
 {
-	Quaternion q;
-	q = { std::cos(angle / 2.0f), std::sin(angle / 2.0f) * axis };
-
-	return q;
+	Quaternion ans = q;
+	ans /= norm;
+	return ans;
 }
 
-Vector3 RotateVector(const Vector3& vector, const Quaternion& q)
-{
-	Quaternion qvec{ 0,vector };
-	Quaternion qua = q * qvec * Conjugate(q);
+Quaternion Identity() { return Quaternion(1, 0, 0, 0); }
 
-	return Vector3(qua.x,qua.y,qua.z);
+Quaternion Conjugate(const Quaternion& q) { return Quaternion(q.w, -q.GetImaginary()); }
+
+Quaternion MakeAxisAngle(const Vector3& axis, float angle)
+{
+	return Quaternion(cosf(angle / 2.0f), axis * sinf(angle / 2.0f));
+}
+
+Vector3 RotateVector(const Vector3& v, const Quaternion& q)
+{
+	Quaternion r = { 0,v };
+	return Quaternion(q * r * Conjugate(q)).GetImaginary();
+}
+
+Matrix4 Quaternion::MakeRotateMatrix() const
+{
+	Matrix4 mat =
+	{
+		w * w + x * x - y * y - z * z, 2 * (x * y + w * z), 2 * (x * z - w * y), 0,
+		2 * (x * y - w * z), w * w - x * x + y * y - z * z, 2 * (y * z - w * x), 0,
+		2 * (x * z + w * y), 2 * (y * z + w * x), w * w - x * x - y * y + z * z, 0,
+		0,0,0,1
+	};
+
+	return mat;
 }
 
 Matrix4 MakeRotateMatrix(const Quaternion& q)
 {
-	Matrix4 mat =
-	{
-		q.w * q.w + q.x * q.x - q.y * q.y - q.z * q.z, 2 * (q.x * q.y + q.w * q.z), 2 * (q.x * q.z - q.w * q.y), 0,
-		2 * (q.x * q.y - q.w * q.z), q.w * q.w - q.x * q.x + q.y * q.y - q.z * q.z, 2 * (q.y * q.z - q.w * q.x), 0,
-		2 * (q.x * q.z + q.w * q.y), 2 * (q.y * q.z + q.w * q.x), q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z, 0,
-		0,0,0,1
-	};
-	
-	return mat;
+	return q.MakeRotateMatrix();
 }
 
-Vector3 TransformAffine(const Vector3& vector, const Quaternion& q)
-{
-	Quaternion vecQ{ 0,vector };
-	vecQ* q;
-	return Vector3(vecQ.x, vecQ.y, vecQ.z);
+const float QuaternionDot(const Quaternion& q0, const Quaternion& q1) {
+	return (q0.x * q1.x) + (q0.y * q1.y) + (q0.z * q1.z) + (q0.w * q1.w);
 }
 
-Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t)
-{
-	Quaternion q0temp = q0;
-	float dot = q0.w * q1.w + q0.x * q1.x + q0.y * q1.y + q0.z * q1.z;
+
+Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t) {
+	const float EPSILON = 1.0e-5f;
+
+	Quaternion qA = q0;
+
+	//q0Ç∆q1ÇÃì‡êœ
+	float dot = QuaternionDot(qA, q1);
+
+	//ì‡êœÇ™ +Ç© -Ç©ÇämîF
 	if (dot < 0) {
-		q0temp = -q0temp;
-		dot = -dot;
+		qA = qA * -1.0f;//Ç‡Ç§ï–ï˚ÇÃâÒì]Çóòóp
+		dot = -dot;//ì‡êœÇ‡îΩì]
+	}
+
+	if (dot >= 1.0f - EPSILON) {
+		return (1.0f - t) * q0 + t * q1;
 	}
 
 	//Ç»Ç∑äpÇãÅÇﬂÇÈ
 	float theta = std::acos(dot);
-	float scale0 = std::sin((1 - t) * theta) / std::sin(theta);
-	float scale1 = std::sin((t) * theta) / std::sin(theta);
-	return scale0 * q0temp + scale1 * q1;
-}
 
-Quaternion operator+(const Quaternion& q1, const Quaternion& q2)
-{
-	return{ q1.x + q2.x,q1.y + q2.y,q1.z + q2.z,q1.w + q2.w };
+	//ï‚ä‘åWêîÇãÅÇﬂÇÈ
+	float scale0 = sin((1 - t) * theta) / sin(theta);
+	//ï‚ä‘åWêîÇãÅÇﬂÇÈ
+	float scale1 = sin(t * theta) / sin(theta);
+
+	//ï‚ä‘åWêîÇópÇ¢ÇƒÅAï‚ä‘å„ÇÃQuaternionÇï‘Ç∑
+	return scale0 * q0 + scale1 * q1;
 }
 
 Quaternion DirectionToDirection(const Vector3& u, const Vector3& v)
