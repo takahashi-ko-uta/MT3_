@@ -102,3 +102,12 @@ Quaternion operator+(const Quaternion& q1, const Quaternion& q2)
 {
 	return{ q1.x + q2.x,q1.y + q2.y,q1.z + q2.z,q1.w + q2.w };
 }
+
+Quaternion DirectionToDirection(const Vector3& u, const Vector3& v)
+{
+	float dot = u.x * v.x + u.y * v.y + u.z * v.z;
+	Vector3 cross = u.cross(v);
+	Vector3 axis = cross.normalize();
+	float theta = std::acos(dot);
+	return MakeAxisAngle(axis, theta);
+}
