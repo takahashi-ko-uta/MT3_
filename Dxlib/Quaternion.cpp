@@ -81,3 +81,24 @@ Vector3 TransformAffine(const Vector3& vector, const Quaternion& q)
 	vecQ* q;
 	return Vector3(vecQ.x, vecQ.y, vecQ.z);
 }
+
+Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t)
+{
+	Quaternion q0temp = q0;
+	float dot = q0.w * q1.w + q0.x * q1.x + q0.y * q1.y + q0.z * q1.z;
+	if (dot < 0) {
+		q0temp = -q0temp;
+		dot = -dot;
+	}
+
+	//‚È‚·Šp‚ð‹‚ß‚é
+	float theta = std::acos(dot);
+	float scale0 = std::sin((1 - t) * theta) / std::sin(theta);
+	float scale1 = std::sin((t) * theta) / std::sin(theta);
+	return scale0 * q0temp + scale1 * q1;
+}
+
+Quaternion operator+(const Quaternion& q1, const Quaternion& q2)
+{
+	return{ q1.x + q2.x,q1.y + q2.y,q1.z + q2.z,q1.w + q2.w };
+}

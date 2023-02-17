@@ -69,20 +69,27 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		//---------  ここからプログラムを記述  ----------//
 
 		// 更新処理
-		Quaternion rot = MakeAxisAngle({ 0.0f,0.0f,1.0f }, 3.141592 / 2.0f);
-		Vector3 pointY = { 0.0f,1.0f,0.0f };
-		Matrix4 rotMat = MakeRotateMatrix(rot);
-		Vector3 rotQua = RotateVector(pointY, rot);
-		Vector3 rotM = TransformAffine(pointY, rot);
+		Quaternion rot0 = MakeAxisAngle({ 0.71f,0.71f,0.0f }, 0.3f);
+		Quaternion rot1 = MakeAxisAngle({ 0.71f,0.0f,0.71f }, 3.141592f);
+
+		rot0 = Normalize(rot0);
+		rot1 = Normalize(rot1);
+		Quaternion interpolate0 = Slerp(rot0, rot1, 0.0f);
+		Quaternion interpolate1 = Slerp(rot0, rot1, 0.3f);
+		Quaternion interpolate2 = Slerp(rot0, rot1, 0.5f);
+		Quaternion interpolate3 = Slerp(rot0, rot1, 0.7f);
+		Quaternion interpolate4 = Slerp(rot0, rot1, 1.0f);
 
 		// 描画処理
 		// 画面クリア
 		ClearDrawScreen();  //画面を消去
 		//DrawAxis3D(500.0f); //xyz軸の描画
 
-		DrawFormatString(3, 10, GetColor(0, 0, 0), "rotQua(x:%.2f,y:%.2f,z:%.2f)", rotQua.x, rotQua.y, rotQua.z);
-		DrawFormatString(3, 30, GetColor(0, 0, 0), "rotMat(x:%.2f,y:%.2f,z:%.2f)", rotM.x, rotM.y, rotM.z);
-
+		DrawFormatString(3, 10, GetColor(0, 0, 0), "0:(x:%.2f,y:%.2f,z:%.2f.w:%.2f)", interpolate0.x, interpolate0.y, interpolate0.z, interpolate0.w);
+		DrawFormatString(3, 30, GetColor(0, 0, 0), "1:(x:%.2f,y:%.2f,z:%.2f.w:%.2f)", interpolate1.x, interpolate1.y, interpolate1.z, interpolate1.w);
+		DrawFormatString(3, 50, GetColor(0, 0, 0), "2:(x:%.2f,y:%.2f,z:%.2f.w:%.2f)", interpolate2.x, interpolate2.y, interpolate2.z, interpolate2.w);
+		DrawFormatString(3, 70, GetColor(0, 0, 0), "3:(x:%.2f,y:%.2f,z:%.2f.w:%.2f)", interpolate3.x, interpolate3.y, interpolate3.z, interpolate3.w);
+		DrawFormatString(3, 90, GetColor(0, 0, 0), "4:(x:%.2f,y:%.2f,z:%.2f.w:%.2f)", interpolate4.x, interpolate4.y, interpolate4.z, interpolate4.w);
 
 		//---------  ここまでにプログラムを記述  ---------//
 		// (ダブルバッファ)裏面
