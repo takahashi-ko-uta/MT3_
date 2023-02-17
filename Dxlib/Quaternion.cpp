@@ -79,6 +79,5 @@ Vector3 TransformAffine(const Vector3& vector, const Quaternion& q)
 {
 	Quaternion vecQ{ 0,vector };
 	vecQ* q;
-	vector* q;
 	return Vector3(vecQ.x, vecQ.y, vecQ.z);
 }
