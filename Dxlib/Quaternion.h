@@ -42,3 +42,5 @@ Vector3 RotateVector(const Vector3& vector, const Quaternion& q);
 //Quaternion‚©‚ç‰ñ“]s—ñ‚ğ‹‚ß‚é
 Matrix4 MakeRotateMatrix(const Quaternion& q);
 
+Vector3 TransformAffine(const Vector3& vector, const Quaternion& q);
+

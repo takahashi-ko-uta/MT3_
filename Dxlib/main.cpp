@@ -69,29 +69,20 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		//---------  ここからプログラムを記述  ----------//
 
 		// 更新処理
-		Quaternion q1 = { 2.0f,3.0f,4.0f,1.0f };
-		Quaternion q2 = { 1.0f,3.0f,5.0f,2.0f };
-		Quaternion identity_ = Identity();
-		Quaternion conj = Conjugate(q1);
-		Quaternion inv = Inverse(q1);
-		Quaternion normal = Normalize(q1);
-		Quaternion mul1 = q1 * q2;
-		Quaternion mul2 = q2 * q1;
-		float norm = Norm(q1);
+		Quaternion rot = MakeAxisAngle({ 0.0f,0.0f,1.0f }, 3.141592 / 2.0f);
+		Vector3 pointY = { 0.0f,1.0f,0.0f };
+		Matrix4 rotMat = MakeRotateMatrix(rot);
+		Vector3 rotQua = RotateVector(pointY, rot);
+		Vector3 rotM = TransformAffine(pointY, rot);
 
 		// 描画処理
 		// 画面クリア
 		ClearDrawScreen();  //画面を消去
 		//DrawAxis3D(500.0f); //xyz軸の描画
 
-		DrawFormatString(3, 10, GetColor(0, 0, 0), "p1(x:%.2f,y:%.2f,z:%.2f,w:%.2f)", q1.x, q1.y, q1.z, q1.w);
-		DrawFormatString(3, 30, GetColor(0, 0, 0), "p2(x:%.2f,y:%.2f,z:%.2f,w:%.2f)", q2.x, q2.y, q2.z, q2.w);
-		DrawFormatString(3, 50, GetColor(0, 0, 0), "identity(x:%.2f,y:%.2f,z:%.2f,w:%.2f)", identity_.x, identity_.y, identity_.z, identity_.w);
-		DrawFormatString(3, 70, GetColor(0, 0, 0), "conj(x:%.2f,y:%.2f,z:%.2f,w:%.2f)", conj.x, conj.y, conj.z, conj.w);
-		DrawFormatString(3, 90, GetColor(0, 0, 0), "inv(x:%.2f,y:%.2f,z:%.2f,w:%.2f)",inv.x, inv.y, inv.z, inv.w);
-		DrawFormatString(3, 110, GetColor(0, 0, 0), "normal(x:%.2f,y:%.2f,z:%.2f,w:%.2f)", normal.x, normal.y, normal.z, normal.w);
-		DrawFormatString(3, 130, GetColor(0, 0, 0), "mul1(x:%.2f,y:%.2f,z:%.2f,w:%.2f)", mul1.x, mul1.y, mul1.z, mul1.w);
-		DrawFormatString(3, 150, GetColor(0, 0, 0), "mul2(x:%.2f,y:%.2f,z:%.2f,w:%.2f)", mul2.x, mul2.y, mul2.z, mul2.w);
+		DrawFormatString(3, 10, GetColor(0, 0, 0), "rotQua(x:%.2f,y:%.2f,z:%.2f)", rotQua.x, rotQua.y, rotQua.z);
+		DrawFormatString(3, 30, GetColor(0, 0, 0), "rotMat(x:%.2f,y:%.2f,z:%.2f)", rotM.x, rotM.y, rotM.z);
+
 
 		//---------  ここまでにプログラムを記述  ---------//
 		// (ダブルバッファ)裏面

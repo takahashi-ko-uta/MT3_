@@ -48,15 +48,37 @@ Quaternion operator*(const Quaternion& q1, const Quaternion& q2)
 
 Quaternion MakeAxisAngle(const Vector3& axis, float angle)
 {
+	Quaternion q;
+	q = { std::cos(angle / 2.0f), std::sin(angle / 2.0f) * axis };
 
+	return q;
 }
 
 Vector3 RotateVector(const Vector3& vector, const Quaternion& q)
 {
+	Quaternion qvec{ 0,vector };
+	Quaternion qua = q * qvec * Conjugate(q);
 
+	return Vector3(qua.x,qua.y,qua.z);
 }
 
 Matrix4 MakeRotateMatrix(const Quaternion& q)
 {
+	Matrix4 mat =
+	{
+		q.w * q.w + q.x * q.x - q.y * q.y - q.z * q.z, 2 * (q.x * q.y + q.w * q.z), 2 * (q.x * q.z - q.w * q.y), 0,
+		2 * (q.x * q.y - q.w * q.z), q.w * q.w - q.x * q.x + q.y * q.y - q.z * q.z, 2 * (q.y * q.z - q.w * q.x), 0,
+		2 * (q.x * q.z + q.w * q.y), 2 * (q.y * q.z + q.w * q.x), q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z, 0,
+		0,0,0,1
+	};
+	
+	return mat;
+}
 
+Vector3 TransformAffine(const Vector3& vector, const Quaternion& q)
+{
+	Quaternion vecQ{ 0,vector };
+	vecQ* q;
+	vector* q;
+	return Vector3(vecQ.x, vecQ.y, vecQ.z);
 }
