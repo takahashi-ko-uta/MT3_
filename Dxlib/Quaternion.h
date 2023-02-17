@@ -33,3 +33,12 @@ Quaternion Normalize(const Quaternion& q);
 Quaternion Inverse(const Quaternion& q);
 Quaternion operator*(const Quaternion& q1, const Quaternion& q2);
 
+//任意軸回転を表すQuaternionの生成
+Quaternion MakeAxisAngle(const Vector3& axis, float angle);
+
+//ベクトルをQuaternionで回転させた結果のベクトルを求める
+Vector3 RotateVector(const Vector3& vector, const Quaternion& q);
+
+//Quaternionから回転行列を求める
+Matrix4 MakeRotateMatrix(const Quaternion& q);
+

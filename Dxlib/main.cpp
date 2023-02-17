@@ -1,5 +1,6 @@
 #include "DxLib.h"
 #include "Vector3.h"
+#include "Quaternion.h"
 #include <vector>
 
 //関数プロトタイプ宣言
@@ -39,7 +40,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	// 画面サイズの最大サイズ、カラービット数を設定(モニターの解像度に合わせる)
 	SetGraphMode(WIN_WIDTH, WIN_HEIGHT, 32);
 	// 画面の背景色を設定する
-	SetBackgroundColor(0, 0, 64);
+	SetBackgroundColor(200, 200, 200);
 	// DXlibの初期化
 	if (DxLib_Init() == -1)  return -1;
 	// (ダブルバッファ)描画先グラフィック領域は裏面を指定
@@ -57,31 +58,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		Vector3(0.0f, 1.0f, 0.0f)//カメラの上の向き
 	);
 
-	//時間計測に必要なデータ
-	long long startCount = 0;
-	long long nowCount = 0;
-	long long elapsedCount = 0;
+	
 
-	//補間で使うデータ
-	//start -> endを5[s]で完了させる
-	Vector3 start(-100.0f, 0.0f, 0.0f);//スタート地点
-	Vector3 p2(-50.0f, 50.0f, 50.0f);//制御点
-	Vector3 p3(50.0f, -30.0f, -50.0f);//制御点
-	Vector3 end(+100.0f, 0.0f, 0.0f);//エンド地点
-
-	std::vector<Vector3> points{ start,start,p2,p3,end,end };
-
-	float maxTime = 5.0f;
-	float timeRate;
-
-	//球の位置
-	Vector3 position;
-
-	//p1からスタートする
-	size_t startIndex = 1;
-
-	//実行前に　カウンタ値を取得
-	startCount = GetNowHiPerformanceCount(); //long long int型  64bit int
 
 	// ゲームループ
 	while (ProcessMessage() == 0 && CheckHitKey(KEY_INPUT_ESCAPE) == 0)
@@ -91,66 +69,29 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		//---------  ここからプログラムを記述  ----------//
 
 		// 更新処理
+		Quaternion q1 = { 2.0f,3.0f,4.0f,1.0f };
+		Quaternion q2 = { 1.0f,3.0f,5.0f,2.0f };
+		Quaternion identity_ = Identity();
+		Quaternion conj = Conjugate(q1);
+		Quaternion inv = Inverse(q1);
+		Quaternion normal = Normalize(q1);
+		Quaternion mul1 = q1 * q2;
+		Quaternion mul2 = q2 * q1;
+		float norm = Norm(q1);
 
-		//[R]でリセット
-		if (CheckHitKey(KEY_INPUT_R))
-		{
-			startCount = GetNowHiPerformanceCount();
-			startIndex = 1;
-		}
-		//経過時間(elapsedTime[s])の計算
-		nowCount = GetNowHiPerformanceCount();
-		elapsedCount = nowCount - startCount;
-		float elapsedTime = static_cast<float>(elapsedCount) / 1'000'000.0f;
-
-		//スタート地点　　:start
-		//エンド地点　　　:end
-		//経過時間　　　　:elapsedTime[s]
-		//移動完了の率(経過時間/全体時間):timeRate(%)
-
-		//timeRateが1.0f以上になったら、次の区間に進む
-		timeRate = elapsedTime / maxTime;
-		//timeRate = min(elapsedTime / maxTime, 1.0f);
-
-		if (timeRate >= 1.0f)
-		{
-			if (startIndex < points.size() - 3)
-			{
-				startIndex += 1;
-				timeRate -= 1.0f;
-				startCount = GetNowHiPerformanceCount();
-			}
-			else
-			{
-				timeRate = 1.0f;
-			}
-		}
-		position = splinePosition(points, startIndex, timeRate);
-
-		// 描画処理--------------------------------------
+		// 描画処理
 		// 画面クリア
 		ClearDrawScreen();  //画面を消去
-		DrawAxis3D(500.0f); //xyz軸の描画
+		//DrawAxis3D(500.0f); //xyz軸の描画
 
-		//球の描画
-
-		DrawSphere3D(start, 1.0f, 32, GetColor(255, 255, 255), GetColor(255, 255, 255), TRUE);
-		DrawSphere3D(p2, 1.0f, 32, GetColor(255, 255, 255), GetColor(255, 255, 255), TRUE);
-		DrawSphere3D(p3, 1.0f, 32, GetColor(255, 255, 255), GetColor(255, 255, 255), TRUE);
-		DrawSphere3D(end, 1.0f, 32, GetColor(255, 255, 255), GetColor(255, 255, 255), TRUE);
-
-		DrawSphere3D(position, 5.0f, 32, GetColor(255, 0, 0), GetColor(255, 255, 255), TRUE);
-
-		//
-		DrawFormatString(0, 0, GetColor(255, 255, 255), "position(%5.1f,%5.1f,%5.1f)", position.x, position.y, position.z);
-		DrawFormatString(0, 20, GetColor(255, 255, 255), "%7.3f [s]", elapsedTime);
-		DrawFormatString(0, 40, GetColor(255, 255, 255), "[R] : Restart");
-
-		DrawFormatString(0, 60, GetColor(255, 255, 255), "p0(%6.1f,%6.1f,%6.1f)", start.x, start.y, start.z);
-		DrawFormatString(0, 80, GetColor(255, 255, 255), "p1(%6.1f,%6.1f,%6.1f)", p2.x, p2.y, p2.z);
-		DrawFormatString(0, 100, GetColor(255, 255, 255), "p2(%6.1f,%6.1f,%6.1f)", p3.x, p3.y, p3.z);
-		DrawFormatString(0, 120, GetColor(255, 255, 255), "p3(%6.1f,%6.1f,%6.1f)", end.x, end.y, end.z);
-		//DrawKeyOperation();//キー操作の描画
+		DrawFormatString(3, 10, GetColor(0, 0, 0), "p1(x:%.2f,y:%.2f,z:%.2f,w:%.2f)", q1.x, q1.y, q1.z, q1.w);
+		DrawFormatString(3, 30, GetColor(0, 0, 0), "p2(x:%.2f,y:%.2f,z:%.2f,w:%.2f)", q2.x, q2.y, q2.z, q2.w);
+		DrawFormatString(3, 50, GetColor(0, 0, 0), "identity(x:%.2f,y:%.2f,z:%.2f,w:%.2f)", identity_.x, identity_.y, identity_.z, identity_.w);
+		DrawFormatString(3, 70, GetColor(0, 0, 0), "conj(x:%.2f,y:%.2f,z:%.2f,w:%.2f)", conj.x, conj.y, conj.z, conj.w);
+		DrawFormatString(3, 90, GetColor(0, 0, 0), "inv(x:%.2f,y:%.2f,z:%.2f,w:%.2f)",inv.x, inv.y, inv.z, inv.w);
+		DrawFormatString(3, 110, GetColor(0, 0, 0), "normal(x:%.2f,y:%.2f,z:%.2f,w:%.2f)", normal.x, normal.y, normal.z, normal.w);
+		DrawFormatString(3, 130, GetColor(0, 0, 0), "mul1(x:%.2f,y:%.2f,z:%.2f,w:%.2f)", mul1.x, mul1.y, mul1.z, mul1.w);
+		DrawFormatString(3, 150, GetColor(0, 0, 0), "mul2(x:%.2f,y:%.2f,z:%.2f,w:%.2f)", mul2.x, mul2.y, mul2.z, mul2.w);
 
 		//---------  ここまでにプログラムを記述  ---------//
 		// (ダブルバッファ)裏面

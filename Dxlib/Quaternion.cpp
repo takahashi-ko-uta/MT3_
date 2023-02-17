@@ -2,7 +2,7 @@
 #include <cmath>
 
 
-Quaternion Identity() { return Quaternion(1, 0, 0, 0); }
+Quaternion Identity() { return Quaternion(0, 0, 0, 1); }
 
 Quaternion Conjugate(const Quaternion& q) { return Quaternion(q.w, -q.GetImaginary()); }
 
@@ -44,4 +44,19 @@ Quaternion operator*(const Quaternion& q1, const Quaternion& q2)
 	Quaternion ans = q1;
 	ans *= q2;
 	return ans;
+}
+
+Quaternion MakeAxisAngle(const Vector3& axis, float angle)
+{
+
+}
+
+Vector3 RotateVector(const Vector3& vector, const Quaternion& q)
+{
+
+}
+
+Matrix4 MakeRotateMatrix(const Quaternion& q)
+{
+
 }
